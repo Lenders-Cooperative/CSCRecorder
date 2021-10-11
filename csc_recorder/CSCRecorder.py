@@ -5,18 +5,18 @@ from jinja2 import (
     select_autoescape
 )
 import xmltodict
-import xml.etree.ElementTree as ET
 import json
 
 
 env = Environment(
-    loader=PackageLoader("CSC"),
+    loader=PackageLoader("csc_recorder.CSC"),
     autoescape=select_autoescape()
 )
 
 class CSCRecorder():
     TEST_URL = 'https://ep4-uat.erecording.com/api/'
     PROD_URL = 'http://'
+    REQUEST_TIMEOUT = 20
     headers = {
         'Content-Type': 'application/xml'
     }
@@ -43,13 +43,37 @@ class CSCRecorder():
     def _get_fips(self):
         ...
 
-    def send_package(self, params: dict):
+    def send_package(
+        self,
+        client_package_id: str,
+        fips: int,
+        params: dict = {},
+        no_document=False
+    ) -> dict:
+        """
+        Sends a request to generate a package to CSC eRecorder
+        
+        Ex param dictionary:
+        params = {
+            "document_name": "some_name",
+            "document_type": "Deed",
+        }
+
+        :param params: dict of parameters to send to CSC
+        :param no_document: bool, if true, will send no document info
+        :return: dict of package information
+        """
         template = env.get_template('CreatePackage.xml')
+        params['no_document'] = no_document
+        params['client_package_id'] = client_package_id
+        params['fips'] = fips # TODO generate FIPS
         payload = template.render(**params)
+
         response = requests.request(
             "POST", 
             f"{self.url}/v1/package?contentType=xml", 
             headers=self.headers, 
+            timeout=self.REQUEST_TIMEOUT,
             data=payload,
             auth=(self.username, self.password)
         )
@@ -66,7 +90,8 @@ class CSCRecorder():
         response = requests.request(
             "GET", 
             url, 
-            headers=self.headers, 
+            headers=self.headers,
+            timeout=self.REQUEST_TIMEOUT,
             auth=(self.username, self.password)
         )
 
@@ -76,11 +101,13 @@ class CSCRecorder():
         return json.loads(response.content)
     
     def get_package_status(self, binder_id: str):
-        url = f"{self.url}/v3/package/{binder_id}?returnFileType=pdf&embed=true&contentType=json&includeImage=true"
+        url = (f"{self.url}/v3/package/{binder_id}?returnFileType"
+                "=pdf&embed=true&contentType=json&includeImage=true")
         response = requests.request(
             "GET", 
             url,
             headers=self.headers,
+            timeout=self.REQUEST_TIMEOUT,
             auth=(self.username, self.password)
         )
     
@@ -90,11 +117,13 @@ class CSCRecorder():
         return xmltodict.parse(response.content)
     
     def additonal_mortgage_tax_requirements(self, county_id: str):
-        url = f"{self.url}/v1/county/{county_id}/AdditionalMortgageTaxNoRecordingFee/requirements"
+        url = (f"{self.url}/v1/county/{county_id}"
+                "/AdditionalMortgageTaxNoRecordingFee/requirements")
         response = requests.request(
             "GET", 
             url, 
-            headers=self.headers, 
+            headers=self.headers,
+            timeout=self.REQUEST_TIMEOUT,
             auth=(self.username, self.password)
         )
 

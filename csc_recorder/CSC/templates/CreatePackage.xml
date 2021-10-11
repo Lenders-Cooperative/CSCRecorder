@@ -2,6 +2,9 @@
        <FIPS>{{ fips }}</FIPS>
        <ClientPackageID>{{ client_package_id }}</ClientPackageID>
        <Documents>
+              {% if no_document %}
+              
+              {% else %}
               <Document Name="{{ document_name }}">
                      <DocType>{{ document_type }}</DocType>          
                      {% if send_to_county is defined %}
@@ -94,5 +97,6 @@
                             <DocImage Type="PDF">{{ doc_image }}</DocImage>
                      {% endif %}
               </Document>
+              {% endif %}
        </Documents>
 </Package>
