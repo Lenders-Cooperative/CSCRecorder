@@ -1,6 +1,9 @@
 <Package>
        <FIPS>{{ fips }}</FIPS>
        <ClientPackageID>{{ client_package_id }}</ClientPackageID>
+       {% if assigned_office is defined %}
+              <OfficeName>{{assigned_office}}</OfficeName>
+       {% endif %}
        <Documents>
               {% if no_document %}
               
@@ -14,12 +17,29 @@
                             <SendToState>{{ send_to_state }}</SendToState>
                      {% endif %}      
                      <RequiredFields>
-                            {% if grantor is defined  %}
-                                   <Grantor> {{ grantor }}</Grantor>
-                            {% endif %}       
-                            {% if grantee is defined %}
-                                   <Grantee> {{ grantee }}</Grantee>
-                            {% endif %}     
+                            {% if grantee_first_name is defined  %}
+                            <Grouping Name="Grantee">
+                               <Entry>
+                                   {% if grantee_first_name is defined  %}<Field Mapping="Grantee" Name="Grantee Last Name/Company">{{ grantee_first_name }}</Field>{% endif %}
+                                 {% if grantee_last_name is defined  %}<Field Mapping="Grantee" Name="Grantee First Name">{{ grantee_last_name }}</Field>{% endif %}
+                                 {% if grantee_middle_name is defined  %}<Field Mapping="Grantee" Name="Grantee Middle Name/Initial">{{ grantee_middle_name }}</Field>{% endif %}
+                                 {% if grantee_suffix is defined  %}<Field Mapping="Grantee" Name="Grantee Suffix">{{ grantee_suffix }}</Field>{% endif %}
+                                 {% if grantee_title is defined  %}<Field Mapping="Grantee" Name="Grantee Title">{{ grantee_title }}</Field>{% endif %}
+                               </Entry>
+                             </Grouping>
+                            {% endif %}
+                            {% if grantor_first_name is defined  %}
+                             <Grouping Name="Grantor">
+                               <Entry>
+                                 {% if grantor_first_name is defined  %}<Field Mapping="Grantor" Name="Grantor Last Name/Company">{{ grantor_first_name }}</Field>{% endif %}
+                                 {% if grantor_last_name is defined  %}<Field Mapping="Grantor" Name="Grantor First Name">{{ grantor_last_name }}</Field>{% endif %}
+                                 {% if grantor_middle_name is defined  %}<Field Mapping="Grantor" Name="Grantor Middle Name/Initial">{{ grantor_middle_name }}</Field>{% endif %}
+                                 {% if grantor_suffix is defined  %}<Field Mapping="Grantor" Name="Grantor Suffix">{{ grantor_suffix }}</Field>{% endif %}
+                                 {% if grantor_title is defined  %}<Field Mapping="Grantor" Name="Grantor Title">{{ grantor_title }}</Field>{% endif %}
+                               </Entry>
+                             </Grouping>
+                            {% endif %}
+
                             {% if consideration_amount is defined %}
                                    <ConsiderationAmount> {{ consideration_amount }}</ConsiderationAmount>
                             {% endif %}     
