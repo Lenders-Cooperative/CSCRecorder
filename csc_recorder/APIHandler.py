@@ -68,6 +68,15 @@ class APIHandler:
                         f"Failed to get success response from CSC. Response: [{response.read()}]"
                     )
 
-                return response.read().decode()
+                response = response.read().decode()
+
+                LOGGER.debug(
+                    "CSC Response for [%s: %s] -- [%s]",
+                    method,
+                    f"{self.host}{url}",
+                    response,
+                )
+
+                return response
         except urllib.error.HTTPError as excp:
             raise Exception(f"Error from CSC. Error: [{excp}]") from excp
