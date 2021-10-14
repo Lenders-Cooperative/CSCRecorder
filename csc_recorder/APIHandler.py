@@ -1,5 +1,5 @@
 import base64
-import logging
+import logging.config
 import urllib.request as requests
 
 from .constants import LOGGING_CONFIG
