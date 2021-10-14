@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "csc-recorder"
-version = "0.1.5"
+version = "1.0.0"
 description = "CSC eRecording python wrapper"
 authors = ["Your Name <you@example.com>"]
 license = "MIT"
