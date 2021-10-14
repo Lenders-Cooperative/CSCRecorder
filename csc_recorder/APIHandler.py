@@ -1,5 +1,6 @@
 import base64
 import logging.config
+import urllib.error
 import urllib.request as requests
 
 from .constants import LOGGING_CONFIG
@@ -36,32 +37,37 @@ class APIHandler:
     def send_request(self, method, url, payload=None):
         LOGGER.info("Sending [%s] API call to [%s]", method, f"{self.host}{url}")
 
+        if payload and not isinstance(payload, bytes):
+            payload = payload.encode()
+
         request = requests.Request(
             url=f"{self.host}{url}",
             data=payload,
-            headers=self._headers,
             method=method,
         )
         self._set_headers(request)
 
-        with requests.urlopen(request, timeout=self.REQUEST_TIMEOUT) as response:
-            LOGGER.info(
-                "Received [%s] response for [%s: %s]",
-                response.code,
-                method,
-                f"{self.host}{url}",
-            )
-
-            if response.code not in range(200, 300):
-                LOGGER.error(
-                    "CSC API Failed. Received [%s] response for [%s: %s]",
+        try:
+            with requests.urlopen(request, timeout=self.REQUEST_TIMEOUT) as response:
+                LOGGER.info(
+                    "Received [%s] response for [%s: %s]",
                     response.code,
                     method,
                     f"{self.host}{url}",
                 )
 
-                raise Exception(
-                    f"Failed to get success response from CSC. Response: [{response.read()}]"
-                )
+                if response.code not in range(200, 300):
+                    LOGGER.error(
+                        "CSC API Failed. Received [%s] response for [%s: %s]",
+                        response.code,
+                        method,
+                        f"{self.host}{url}",
+                    )
 
-            return response
+                    raise Exception(
+                        f"Failed to get success response from CSC. Response: [{response.read()}]"
+                    )
+
+                return response.read().decode()
+        except urllib.error.HTTPError as excp:
+            raise Exception(f"Error from CSC. Error: [{excp}]") from excp
