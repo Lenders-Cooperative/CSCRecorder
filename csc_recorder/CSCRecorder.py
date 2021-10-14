@@ -15,7 +15,10 @@ env = Environment(
 class CSCRecorder(APIHandler):
     def __init__(self, host, username, password):
         self._api_handler = APIHandler(
-            host, username, password, headers={"Content-Type": "application/xml"}
+            host,
+            username,
+            password,
+            headers={"Content-Type": "application/xml", "Accept": "*/*"},
         )
 
     def _clean_response(self, r: str) -> str:
@@ -75,14 +78,14 @@ class CSCRecorder(APIHandler):
 
         response = self._api_handler.send_request("POST", url, payload)
 
-        cleaned_response = self._clean_response(str(response.text))
+        cleaned_response = self._clean_response(str(response))
 
-        return xmltodict.parse(cleaned_response), response
+        return xmltodict.parse(cleaned_response)
 
     def get_document_type(self, fips: str) -> Tuple[dict, http_client.HTTPResponse]:
         response = self._api_handler.send_request("GET", f"/v1/documentType/{fips}")
 
-        return json.loads(response.content), response
+        return json.loads(response)
 
     def get_package_status(
         self, binder_id: str
@@ -100,7 +103,7 @@ class CSCRecorder(APIHandler):
             ),
         )
 
-        return xmltodict.parse(response.content), response
+        return xmltodict.parse(response)
 
     def get_mortgage_tax_req(
         self, county_id: str
@@ -113,7 +116,7 @@ class CSCRecorder(APIHandler):
                 "/AdditionalMortgageTaxNoRecordingFee/requirements"
             ),
         )
-        return json.loads(response.content), response
+        return json.loads(response)
 
     def get_assigned_office(self) -> Tuple[dict, http_client.HTTPResponse]:
         """
@@ -121,7 +124,7 @@ class CSCRecorder(APIHandler):
         """
         response = self._api_handler.send_request("GET", "/v1/office/assigned")
 
-        return json.loads(response.content), response
+        return json.loads(response)
 
     def get_offices(self) -> Tuple[dict, http_client.HTTPResponse]:
         """
@@ -129,7 +132,7 @@ class CSCRecorder(APIHandler):
         """
         response = self._api_handler.send_request("GET", "/v1/office")
 
-        return json.loads(response.content), response
+        return json.loads(response)
 
     def get_state_offices(
         self, state: str, service_type=None
@@ -146,4 +149,4 @@ class CSCRecorder(APIHandler):
 
         response = self._api_handler.send_request("GET", url)
 
-        return json.loads(response.content), response
+        return json.loads(response)
