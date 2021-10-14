@@ -11,7 +11,7 @@ Python wrapper for CSC Recorder.
 from csc_recorder.CSCRecorder import CSCRecorder
 
 
-client = CSCRecorder('username', 'password')
+client = CSCRecorder('host', 'username', 'password')
 
 # Sending a package
 data, response = client.send_package('1234_TEST', '48201', 'Default Office', {'document_name': 'test', 'document_type': 'Deed'}, 'paperfulfillment', True)
@@ -64,6 +64,6 @@ The dictionary in the params supports the below attributes, they're not required
 - requesting_zip
 - doc_image **(NOTE: base64 PDF's)
 
-The last 2 params are optional as well. 
+The last 2 params are optional as well.
 - service_type, defaults to None, but currently you can also add 'paperfulillment'
 - no_document, defaults to False, but you can make the package send 0 document attributes by marking True
