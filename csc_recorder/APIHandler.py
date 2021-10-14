@@ -70,7 +70,7 @@ class APIHandler:
 
                 response = response.read().decode()
 
-                LOGGER.debug(
+                LOGGER.info(
                     "CSC Response for [%s: %s] -- [%s]",
                     method,
                     f"{self.host}{url}",

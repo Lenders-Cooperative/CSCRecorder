@@ -26,6 +26,13 @@ class CSCRecorder(APIHandler):
         r = r.replace('<?xml version="1.0" encoding="UTF-8"?>', "")
         r = r[1:]
         r = r[:-1]
+
+        if not r.startswith("<"):
+            r = f"<{r}"
+
+        if not r.endswith(">"):
+            r = f"{r}>"
+
         return r
 
     def _parse_xml_string(self, xml):
@@ -78,7 +85,7 @@ class CSCRecorder(APIHandler):
 
         response = self._api_handler.send_request("POST", url, payload)
 
-        cleaned_response = self._clean_response(str(response))
+        cleaned_response = self._clean_response(response)
 
         return xmltodict.parse(cleaned_response)
 
