@@ -13,6 +13,11 @@ env = Environment(
 
 
 class CSCRecorder(APIHandler):
+    REQUIRED_PAPER_VALUES = [
+        'document_name',
+        'send_to_county',
+        'send_to_state',
+    ]
     def __init__(self, host, username, password):
         self._api_handler = APIHandler(
             host,
@@ -47,8 +52,7 @@ class CSCRecorder(APIHandler):
         fips: int,
         assigned_office: str,
         params: dict = {},
-        service_type: str = None,
-        no_document: bool = False,
+        paper: bool = False,
         debug: bool = False,
     ) -> Tuple[OrderedDict, http_client.HTTPResponse]:
         """
@@ -68,8 +72,18 @@ class CSCRecorder(APIHandler):
         :param no_document: bool, if true, will send no document info
         :return: dict of package information
         """
+        url = "/v1/package?contentType=xml"
+
+        if paper:
+            url = f"{url}&serviceType=paperfulfillment"
+            if not all(value in params for value in self.REQUIRED_PAPER_VALUES):
+                raise Exception(
+                    f"CSC Paperfulilment is missing these param requirements:"
+                    f"{set(self.REQUIRED_PAPER_VALUES) - params.keys()}"
+                )
+
         template = env.get_template("CreatePackage.xml")
-        params["no_document"] = no_document
+        params["paper"] = paper
         params["client_package_id"] = client_package_id
         params["fips"] = fips  # TODO generate FIPS
         params["assigned_office"] = assigned_office
@@ -77,11 +91,6 @@ class CSCRecorder(APIHandler):
 
         if debug:
             print(payload)
-
-        url = "/v1/package?contentType=xml"
-
-        if service_type:
-            url = f"{url}&serviceType={service_type}"
 
         response = self._api_handler.send_request("POST", url, payload)
 
