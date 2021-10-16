@@ -56,7 +56,7 @@ class APIHandler:
             )
 
             return response
-        except urllib.error.HTTPError as excp:
+        except requests.HTTPError as excp:
             LOGGER.error(
                 "CSC API Failed. Received [%s] response for [%s: %s]",
                 response.code,
