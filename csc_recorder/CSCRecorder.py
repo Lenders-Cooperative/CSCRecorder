@@ -12,19 +12,20 @@ env = Environment(
 )
 
 
-class CSCRecorder(APIHandler):
+class CSCRecorder:
     REQUIRED_PAPER_VALUES = [
         "document_name",
         "send_to_county",
         "send_to_state",
     ]
 
-    def __init__(self, host, username, password):
+    def __init__(self, host, username, password, logging=True):
         self._api_handler = APIHandler(
             host,
             username,
             password,
             headers={"Content-Type": "application/xml", "Accept": "*/*"},
+            logging=logging,
         )
 
     def _clean_response(self, r: str) -> str:
