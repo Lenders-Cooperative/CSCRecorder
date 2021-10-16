@@ -1,7 +1,6 @@
-import base64
 import logging.config
-import urllib.error
-import urllib.request as requests
+
+import requests
 
 from .constants import LOGGING_CONFIG
 
@@ -16,9 +15,7 @@ class APIHandler:
         self._host = host
         self._headers = headers
         self._username = username
-        self.__authorization = base64.b64encode(
-            f"{username}:{password}".encode()
-        ).decode()
+        self.__password = password
 
     @property
     def host(self):
@@ -28,55 +25,45 @@ class APIHandler:
     def username(self):
         return self._username
 
-    def _set_headers(self, request):
-        request.add_header("Authorization", f"Basic {self.__authorization}")
-
-        for key, value in self._headers.items():
-            request.add_header(key, value)
-
     def send_request(self, method, url, payload=None):
         LOGGER.info("Sending [%s] API call to [%s]", method, f"{self.host}{url}")
 
-        if payload and not isinstance(payload, bytes):
-            payload = payload.encode()
-
-        request = requests.Request(
-            url=f"{self.host}{url}",
-            data=payload,
-            method=method,
-        )
-        self._set_headers(request)
-
         try:
-            with requests.urlopen(request, timeout=self.REQUEST_TIMEOUT) as response:
-                LOGGER.info(
-                    "Received [%s] response for [%s: %s]",
-                    response.code,
-                    method,
-                    f"{self.host}{url}",
-                )
+            request = requests.request(
+                method,
+                f"{self.host}{url}",
+                headers=self._headers,
+                timeout=self.REQUEST_TIMEOUT,
+                data=payload,
+                auth=(self.username, self.__password),
+            )
 
-                if response.code not in range(200, 300):
-                    LOGGER.error(
-                        "CSC API Failed. Received [%s] response for [%s: %s]",
-                        response.code,
-                        method,
-                        f"{self.host}{url}",
-                    )
+            LOGGER.info(
+                "Received [%s] response for [%s: %s]",
+                response.status_code,
+                method,
+                f"{self.host}{url}",
+            )
+            response.raise_for_status()
 
-                    raise Exception(
-                        f"Failed to get success response from CSC. Response: [{response.read()}]"
-                    )
+            response = response.text
 
-                response = response.read().decode()
+            LOGGER.info(
+                "CSC Response for [%s: %s] -- [%s]",
+                method,
+                f"{self.host}{url}",
+                response,
+            )
 
-                LOGGER.info(
-                    "CSC Response for [%s: %s] -- [%s]",
-                    method,
-                    f"{self.host}{url}",
-                    response,
-                )
-
-                return response
+            return response
         except urllib.error.HTTPError as excp:
-            raise Exception(f"Error from CSC. Error: [{excp}]") from excp
+            LOGGER.error(
+                "CSC API Failed. Received [%s] response for [%s: %s]",
+                response.code,
+                method,
+                f"{self.host}{url}",
+            )
+
+            raise Exception(
+                f"Failed to get success response from CSC. Response: [{response.text}]"
+            ) from excp
