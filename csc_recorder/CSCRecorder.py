@@ -13,6 +13,15 @@ env = Environment(
 
 
 class CSCRecorder(APIHandler):
+    REQUIRED_PAPER_FIELDS = [
+        "document_name",
+        "document_type",
+        "send_to_state",
+        "send_to_county",
+        "grantor",
+        "grantee"
+    ]
+
     def __init__(self, host, username, password):
         self._api_handler = APIHandler(
             host,
@@ -68,6 +77,20 @@ class CSCRecorder(APIHandler):
         :param no_document: bool, if true, will send no document info
         :return: dict of package information
         """
+
+        url = "/v1/package?contentType=xml"
+
+        if service_type == "paperfulfillment" and no_document:
+            raise Exception("Paperfulfillment requires a document with params")
+
+        if service_type == "paperfulfillment":    
+            url = f"{url}&serviceType={service_type}"
+            if not all(value in params for value in self.REQUIRED_PAPER_FIELDS):
+                raise Exception(
+                    f"CSC Paperfulilment is missing these param requirements:"
+                    f"{set(self.REQUIRED_PAPER_FIELDS) - params.keys()}"
+                )
+
         template = env.get_template("CreatePackage.xml")
         params["no_document"] = no_document
         params["client_package_id"] = client_package_id
@@ -77,11 +100,6 @@ class CSCRecorder(APIHandler):
 
         if debug:
             print(payload)
-
-        url = "/v1/package?contentType=xml"
-
-        if service_type:
-            url = f"{url}&serviceType={service_type}"
 
         response = self._api_handler.send_request("POST", url, payload)
 
