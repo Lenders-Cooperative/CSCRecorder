@@ -1,18 +1,110 @@
 <Package>
        <FIPS>{{ fips }}</FIPS>
        <ClientPackageID>{{ client_package_id }}</ClientPackageID>
-       <OfficeName>{{assigned_office}}</OfficeName>
-       {% if paper %}
-              <Documents>
-                     <Document Name="{{ document_name }}">
-                            <DocType>Mortgage</DocType>
-                            <SendToCounty>{{ send_to_county }}</SendToCounty>
-                            <SendToState>{{ send_to_state }}</SendToState>
-                            <RequiredFields>
-                                   <Grantor>Borrower</Grantor>
-                                   <Grantee>U.S. Small Business Administration</Grantee>
-                            </RequiredFields>
-                     </Document>
-              </Documents>
+       <OfficeName>{{ assigned_office }}</OfficeName>
+
+       {% if no_document %}
+
+       {% else %}
+       <Documents>
+              <Document Name="{{ document_name }}">
+                     <DocType>{{ document_type }}</DocType>
+
+                     {% if send_to_county is defined %}
+                     <SendToCounty>{{ send_to_county }}</SendToCounty>
+                     {% endif %}
+
+                     {% if send_to_state is defined %}
+                     <SendToState>{{ send_to_state }}</SendToState>
+                     {% endif %}
+
+                     <RequiredFields>
+
+                            {% if grantor is defined  %}
+                            <Grantor>{{ grantor }}</Grantor>
+                            {% endif %}
+
+                            {% if grantee is defined  %}
+                            <Grantee>{{ grantee }}</Grantee>
+                            {% endif %}
+
+                            {% if consideration_amount is defined %}
+                            <ConsiderationAmount> {{ consideration_amount }}</ConsiderationAmount>
+                            {% endif %}
+                            {% if original_recording_date is defined %}
+                            <OriginalRecordingDate> {{ original_recording_date }}</OriginalRecordingDate>
+                            {% endif %}
+                            {% if original_instrument_no is defined %}
+                            <OriginalInstrumentNo> {{ original_instrument_no }}</OriginalInstrumentNo>
+                            {% endif %}
+                            {% if original_deed_book is defined %}
+                            <OriginalDeedBook> {{ original_deed_book }}</OriginalDeedBook>
+                            {% endif %}
+                            {% if original_deed_page is defined %}
+                            <OriginalDeedPage> {{ original_deed_page }}</OriginalDeedPage>
+                            {% endif %}
+                            {% if assesors_parcel_id is defined %}
+                            <AssessorsParcelID> {{ assesors_parcel_id }}</AssessorsParcelID>
+                            {% endif %}
+                            {% if date_of_note is defined %}
+                            <DateofNote> {{ date_of_note }}</DateofNote>
+                            {% endif %}
+                            {% if amount_of_note is defined %}
+                            <AmountofNote> {{ amount_of_note }}</AmountofNote>
+                            {% endif %}
+                            {% if property_street_address_1 is defined %}
+                            <PropertyStreetAddress1> {{ property_street_address_1 }}</PropertyStreetAddress1>
+                            {% endif %}
+                            {% if property_city is defined %}
+                            <PropertyCity> {{ property_city }}</PropertyCity>
+                            {% endif %}
+                            {% if property_state is defined %}
+                            <PropertyState> {{ property_state }}</PropertyState>
+                            {% endif %}
+                            {% if property_zip is defined %}
+                            <PropertyZip> {{ property_zip }}</PropertyZip>
+                            {% endif %}
+                            {% if requesting_name is defined %}
+                            <RequestingName> {{ requesting_name }}</RequestingName>
+                            {% endif %}
+                            {% if return_name is defined %}
+                            <ReturnName> {{ return_name }}</ReturnName>
+                            {% endif %}
+                            {% if return_company is defined %}
+                            <ReturnCompany> {{ return_company }}</ReturnCompany>
+                            {% endif %}
+                            {% if return_street_address_1 is defined %}
+                            <ReturnStreetAddress1> {{ return_street_address_1 }}</ReturnStreetAddress1>
+                            {% endif %}
+                            {% if return_city is defined %}
+                            <ReturnCity> {{ return_city }}</ReturnCity>
+                            {% endif %}
+                            {% if return_state is defined %}
+                            <ReturnState> {{ return_state }}</ReturnState>
+                            {% endif %}
+                            {% if return_zip is defined %}
+                            <ReturnZip> {{ return_zip }}</ReturnZip>
+                            {% endif %}
+                            {% if requesting_company is defined %}
+                            <RequestingCompany> {{ requesting_company }}</RequestingCompany>
+                            {% endif %}
+                            {% if requesting_address_1 is defined %}
+                            <RequestingAddress1> {{ requesting_address_1 }}</RequestingAddress1>
+                            {% endif %}
+                            {% if requesting_city is defined %}
+                            <RequestingCity> {{ requesting_city }}</RequestingCity>
+                            {% endif %}
+                            {% if requesting_state is defined %}
+                            <RequestingState> {{ requesting_state }}</RequestingState>
+                            {% endif %}
+                            {% if requesting_zip is defined %}
+                            <RequestingZip> {{ requesting_zip }}</RequestingZip>
+                            {% endif %}
+                     </RequiredFields>
+                     {% if doc_image is defined %}
+                     <DocImage Type="PDF">{{ doc_image }}</DocImage>
+                     {% endif %}
+              </Document>
+       </Documents>
        {% endif %}
 </Package>
