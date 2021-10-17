@@ -1,10 +1,7 @@
 <Package>
        <FIPS>{{ fips }}</FIPS>
        <ClientPackageID>{{ client_package_id }}</ClientPackageID>
-
-       {% if assigned_office is defined %}
-       <OfficeName>{{assigned_office}}</OfficeName>
-       {% endif %}
+       <OfficeName>{{ assigned_office }}</OfficeName>
 
        {% if no_document %}
 
@@ -22,13 +19,13 @@
                      {% endif %}
 
                      <RequiredFields>
-                            
+
                             {% if grantor is defined  %}
                             <Grantor>{{ grantor }}</Grantor>
                             {% endif %}
 
                             {% if grantee is defined  %}
-				<Grantee>{{ grantee }}</Grantee>
+                            <Grantee>{{ grantee }}</Grantee>
                             {% endif %}
 
                             {% if consideration_amount is defined %}

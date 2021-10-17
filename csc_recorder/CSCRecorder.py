@@ -1,7 +1,7 @@
 import json
-from http import client as http_client
 from typing import OrderedDict, Tuple
 
+import requests
 import xmltodict
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -12,22 +12,23 @@ env = Environment(
 )
 
 
-class CSCRecorder(APIHandler):
+class CSCRecorder:
     REQUIRED_PAPER_FIELDS = [
         "document_name",
         "document_type",
         "send_to_state",
         "send_to_county",
         "grantor",
-        "grantee"
+        "grantee",
     ]
 
-    def __init__(self, host, username, password):
+    def __init__(self, host, username, password, logging=True):
         self._api_handler = APIHandler(
             host,
             username,
             password,
             headers={"Content-Type": "application/xml", "Accept": "*/*"},
+            logging=logging,
         )
 
     def _clean_response(self, r: str) -> str:
@@ -59,7 +60,7 @@ class CSCRecorder(APIHandler):
         service_type: str = None,
         no_document: bool = False,
         debug: bool = False,
-    ) -> Tuple[OrderedDict, http_client.HTTPResponse]:
+    ) -> Tuple[OrderedDict, requests.Response]:
         """
         Sends a request to generate a package to CSC eRecorder
 
@@ -83,8 +84,9 @@ class CSCRecorder(APIHandler):
         if service_type == "paperfulfillment" and no_document:
             raise Exception("Paperfulfillment requires a document with params")
 
-        if service_type == "paperfulfillment":    
+        if service_type == "paperfulfillment":
             url = f"{url}&serviceType={service_type}"
+
             if not all(value in params for value in self.REQUIRED_PAPER_FIELDS):
                 raise Exception(
                     f"CSC Paperfulilment is missing these param requirements:"
@@ -107,14 +109,12 @@ class CSCRecorder(APIHandler):
 
         return xmltodict.parse(cleaned_response)
 
-    def get_document_type(self, fips: str) -> Tuple[dict, http_client.HTTPResponse]:
+    def get_document_type(self, fips: str) -> Tuple[dict, requests.Response]:
         response = self._api_handler.send_request("GET", f"/v1/documentType/{fips}")
 
         return json.loads(response)
 
-    def get_package_status(
-        self, binder_id: str
-    ) -> Tuple[dict, http_client.HTTPResponse]:
+    def get_package_status(self, binder_id: str) -> Tuple[dict, requests.Response]:
         """
         Returns a packages status with file and fees.
 
@@ -130,9 +130,7 @@ class CSCRecorder(APIHandler):
 
         return xmltodict.parse(response)
 
-    def get_mortgage_tax_req(
-        self, county_id: str
-    ) -> Tuple[dict, http_client.HTTPResponse]:
+    def get_mortgage_tax_req(self, county_id: str) -> Tuple[dict, requests.Response]:
         """ """
         response = self._api_handler.send_request(
             "GET",
@@ -143,7 +141,7 @@ class CSCRecorder(APIHandler):
         )
         return json.loads(response)
 
-    def get_assigned_office(self) -> Tuple[dict, http_client.HTTPResponse]:
+    def get_assigned_office(self) -> Tuple[dict, requests.Response]:
         """
         Returns the current selected office from the CSC Platform.
         """
@@ -151,7 +149,7 @@ class CSCRecorder(APIHandler):
 
         return json.loads(response)
 
-    def get_offices(self) -> Tuple[dict, http_client.HTTPResponse]:
+    def get_offices(self) -> Tuple[dict, requests.Response]:
         """
         Returns all offices that have been created for your account.
         """
@@ -161,7 +159,7 @@ class CSCRecorder(APIHandler):
 
     def get_state_offices(
         self, state: str, service_type=None
-    ) -> Tuple[dict, http_client.HTTPResponse]:
+    ) -> Tuple[dict, requests.Response]:
         """
         Returns a list of county offices for that given state.
 
