@@ -57,7 +57,8 @@ class CSCRecorder:
         fips: int,
         assigned_office: str,
         params: dict = {},
-        paper: bool = False,
+        service_type: str = None,
+        no_document: bool = False,
         debug: bool = False,
     ) -> Tuple[OrderedDict, requests.Response]:
         """
@@ -93,7 +94,7 @@ class CSCRecorder:
                 )
 
         template = env.get_template("CreatePackage.xml")
-        params["paper"] = paper
+        params["no_document"] = no_document
         params["client_package_id"] = client_package_id
         params["fips"] = fips  # TODO generate FIPS
         params["assigned_office"] = assigned_office
