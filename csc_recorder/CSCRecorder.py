@@ -12,7 +12,7 @@ env = Environment(
 )
 
 
-class CSCRecorder(APIHandler):
+class CSCRecorder:
     REQUIRED_PAPER_FIELDS = [
         "document_name",
         "document_type",
