@@ -38,7 +38,7 @@ class APIHandler:
             LOGGER.info("Sending [%s] API call to [%s]", method, f"{self.host}{url}")
 
         try:
-            request = requests.request(
+            response = requests.request(
                 method,
                 f"{self.host}{url}",
                 headers=self._headers,
