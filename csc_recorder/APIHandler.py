@@ -72,7 +72,7 @@ class APIHandler:
             if self.__logging:
                 LOGGER.error(
                     "CSC API Failed. Received [%s] response for [%s: %s]",
-                    response.code,
+                    response.status_code,
                     method,
                     f"{self.host}{url}",
                 )
