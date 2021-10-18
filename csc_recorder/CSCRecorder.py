@@ -56,7 +56,7 @@ class CSCRecorder:
         client_package_id: str,
         fips: int,
         assigned_office: str,
-        params: dict = {},
+        doc_params: list = [],
         service_type: str = None,
         no_document: bool = False,
         debug: bool = False,
@@ -65,15 +65,27 @@ class CSCRecorder:
         Sends a request to generate a package to CSC eRecorder
 
         Ex param dictionary:
-        params = {
-            "document_name": "some_name",
-            "document_type": "Deed",
-        }
+        doc_params = [
+            {
+                "document_name": "some_name",
+                "document_type": "Deed",
+                "send_to_state": "TX",
+                "send_to_county": "12345",
+                "grantor": "grantor",
+                "grantee": "grantee",
+                ...
+            },
+            {
+                "document_name": "some_other_name",
+                "document_type": "Deed",
+                ...
+            },
+        ]
 
         :param client_package_id: the package ID that we will be uploading
         :param fips: the FIPS code of the county
         :param assigned_office: the name of the office to assign the package to
-        :param params: dict of parameters to send to CSC
+        :param doc_params: a list of dict of parameters to send to CSC
         :param service_type: currently only 'paperfulfillment' option
         :param no_document: bool, if true, will send no document info
         :return: dict of package information
@@ -86,18 +98,20 @@ class CSCRecorder:
 
         if service_type == "paperfulfillment":
             url = f"{url}&serviceType={service_type}"
-
-            if not all(value in params for value in self.REQUIRED_PAPER_FIELDS):
-                raise Exception(
-                    f"CSC Paperfulilment is missing these param requirements:"
-                    f"{set(self.REQUIRED_PAPER_FIELDS) - params.keys()}"
-                )
+            for item in doc_params:
+                if not all(value in item for value in self.REQUIRED_PAPER_FIELDS):
+                    raise Exception(
+                        f"CSC Paperfulilment is missing these param requirements:"
+                        f"{set(self.REQUIRED_PAPER_FIELDS) - item.keys()}"
+                    )
 
         template = env.get_template("CreatePackage.xml")
+        params = {}
         params["no_document"] = no_document
         params["client_package_id"] = client_package_id
         params["fips"] = fips  # TODO generate FIPS
         params["assigned_office"] = assigned_office
+        params["doc_params"] = doc_params
         payload = template.render(**params)
 
         if debug:
