@@ -7,9 +7,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 
 from csc_recorder.APIHandler import APIHandler
 
-env = Environment(
-    loader=PackageLoader("csc_recorder.CSC"), autoescape=select_autoescape()
-)
+env = Environment(loader=PackageLoader("csc_recorder.CSC"), autoescape=select_autoescape())
 
 
 class CSCRecorder:
@@ -60,6 +58,7 @@ class CSCRecorder:
         service_type: str = None,
         no_document: bool = False,
         debug: bool = False,
+        log_config: dict = None,
     ) -> Tuple[OrderedDict, requests.Response]:
         """
         Sends a request to generate a package to CSC eRecorder
@@ -117,7 +116,7 @@ class CSCRecorder:
         if debug:
             print(payload)
 
-        response = self._api_handler.send_request("POST", url, payload)
+        response = self._api_handler.send_request("POST", url, payload, log_config=log_config)
 
         cleaned_response = self._clean_response(response)
 
@@ -136,10 +135,7 @@ class CSCRecorder:
         """
         response = self._api_handler.send_request(
             "GET",
-            (
-                f"/v3/package/{binder_id}?returnFileType=pdf"
-                "&embed=true&contentType=json&includeImage=true"
-            ),
+            f"/v3/package/{binder_id}?returnFileType=pdf&embed=true&contentType=json&includeImage=true",
         )
 
         return xmltodict.parse(response)
@@ -148,10 +144,7 @@ class CSCRecorder:
         """ """
         response = self._api_handler.send_request(
             "GET",
-            (
-                f"/v1/county/{county_id}"
-                "/AdditionalMortgageTaxNoRecordingFee/requirements"
-            ),
+            f"/v1/county/{county_id}/AdditionalMortgageTaxNoRecordingFee/requirements",
         )
         return json.loads(response)
 
@@ -171,9 +164,7 @@ class CSCRecorder:
 
         return json.loads(response)
 
-    def get_state_offices(
-        self, state: str, service_type=None
-    ) -> Tuple[dict, requests.Response]:
+    def get_state_offices(self, state: str, service_type=None) -> Tuple[dict, requests.Response]:
         """
         Returns a list of county offices for that given state.
 
