@@ -1,5 +1,4 @@
 import logging.config
-from datetime import datetime
 
 import requests
 
@@ -41,7 +40,12 @@ class APIHandler:
         log_entry = None
 
         if log_config:
-            if "model" not in log_config or "user" not in log_config or "sba_number" not in log_config:
+            if (
+                "model" not in log_config
+                or "user" not in log_config
+                or "sba_number" not in log_config
+                or "timezone" not in log_config
+            ):
                 raise Exception("Invalid log dict")
 
         try:
@@ -52,7 +56,7 @@ class APIHandler:
                     request_url=f"{method}: {url}",
                     request_headers=self._headers,
                     request_body=payload,
-                    request_time=datetime.now(),
+                    request_time=log_config["timezone"].now(),
                 )
 
             response = requests.request(
