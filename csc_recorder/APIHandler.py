@@ -33,7 +33,10 @@ class APIHandler:
     def username(self):
         return self._username
 
-    def send_request(self, method, url, payload=None, log_config: dict = None):
+    def send_request(self, method, url, payload=None, log_config: dict = None, headers: dict = None):
+        if not headers:
+            headers = self._headers
+
         if self.__logging:
             LOGGER.info("Sending [%s] API call to [%s]", method, f"{self.host}{url}")
 
@@ -54,7 +57,7 @@ class APIHandler:
                     sba_number=log_config["sba_number"],
                     requested_by=log_config["user"],
                     request_url=f"{method}: {url}",
-                    request_headers=self._headers,
+                    request_headers=headers,
                     request_body=payload,
                     request_time=log_config["timezone"].now(),
                 )
@@ -62,7 +65,7 @@ class APIHandler:
             response = requests.request(
                 method,
                 f"{self.host}{url}",
-                headers=self._headers,
+                headers=headers,
                 timeout=self.REQUEST_TIMEOUT,
                 data=payload,
                 auth=(self.username, self.__password),

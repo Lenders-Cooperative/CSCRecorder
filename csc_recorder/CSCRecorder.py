@@ -122,12 +122,12 @@ class CSCRecorder:
 
         return xmltodict.parse(cleaned_response)
 
-    def get_document_type(self, fips: str) -> Tuple[dict, requests.Response]:
+    def get_document_type(self, fips: str) -> dict:
         response = self._api_handler.send_request("GET", f"/v1/documentType/{fips}")
 
         return json.loads(response)
 
-    def get_package_status(self, binder_id: str) -> Tuple[dict, requests.Response]:
+    def get_package_status(self, binder_id: str) -> dict:
         """
         Returns a packages status with file and fees.
 
@@ -140,7 +140,7 @@ class CSCRecorder:
 
         return xmltodict.parse(response)
 
-    def get_mortgage_tax_req(self, county_id: str) -> Tuple[dict, requests.Response]:
+    def get_mortgage_tax_req(self, county_id: str) -> dict:
         """ """
         response = self._api_handler.send_request(
             "GET",
@@ -148,7 +148,7 @@ class CSCRecorder:
         )
         return json.loads(response)
 
-    def get_assigned_office(self) -> Tuple[dict, requests.Response]:
+    def get_assigned_office(self) -> dict:
         """
         Returns the current selected office from the CSC Platform.
         """
@@ -156,7 +156,7 @@ class CSCRecorder:
 
         return json.loads(response)
 
-    def get_offices(self) -> Tuple[dict, requests.Response]:
+    def get_offices(self) -> dict:
         """
         Returns all offices that have been created for your account.
         """
@@ -164,7 +164,7 @@ class CSCRecorder:
 
         return json.loads(response)
 
-    def get_state_offices(self, state: str, service_type=None) -> Tuple[dict, requests.Response]:
+    def get_state_offices(self, state: str, service_type=None) -> dict:
         """
         Returns a list of county offices for that given state.
 
@@ -176,5 +176,26 @@ class CSCRecorder:
             url += f"?serviceType={service_type}"
 
         response = self._api_handler.send_request("GET", url)
+
+        return json.loads(response)
+
+    def send_paper_package(self, package_ids: list) -> dict:
+        """
+        Call the `send` API for the given list of paper packages to publish
+        and generate the transmittal sheet.
+
+        :param package_ids: list of packages to send
+
+        `Note`: package IDS should only be for paper packages
+        """
+        if not package_ids or not isinstance(package_ids, list):
+            raise Exception("Package IDs should be given as a list")
+
+        response = self._api_handler.send_request(
+            "PUT",
+            "/v1/package/send?contentType=json&serviceType=paperFulfillment",
+            payload=json.dumps(package_ids),
+            headers={"Content-Type": "application/json"},
+        )
 
         return json.loads(response)
