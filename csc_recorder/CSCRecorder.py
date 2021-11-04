@@ -179,7 +179,7 @@ class CSCRecorder:
 
         return json.loads(response)
 
-    def send_paper_package(self, package_ids: list) -> dict:
+    def send_paper_package(self, package_ids: list, log_config: dict = None) -> dict:
         """
         Call the `send` API for the given list of paper packages to publish
         and generate the transmittal sheet.
@@ -195,6 +195,7 @@ class CSCRecorder:
             "PUT",
             "/v1/package/send?contentType=json&serviceType=paperFulfillment",
             payload=json.dumps(package_ids),
+            log_config=log_config,
             headers={"Content-Type": "application/json"},
         )
 
