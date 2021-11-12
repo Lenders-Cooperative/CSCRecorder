@@ -9,7 +9,7 @@ LOGGER = logging.getLogger("csc-recorder")
 
 
 class APIHandler:
-    REQUEST_TIMEOUT = 10
+    REQUEST_TIMEOUT = 30
 
     def __init__(
         self,
